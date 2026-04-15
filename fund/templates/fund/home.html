@@ -1,0 +1,106 @@
+{% extends 'fund/base.html' %}
+
+{% block content %}
+
+<div class="page-title">🏠 Dashboard</div>
+
+<div class="row g-4 mb-4">
+
+  <!-- Active Participants count -->
+  <div class="col-md-4">
+    <div class="card text-center p-3">
+      <h2 class="fw-bold text-success">{{ active_participants.count }}</h2>
+      <p class="mb-0 text-muted">Active Participants</p>
+    </div>
+  </div>
+
+  <!-- Current Round status -->
+  <div class="col-md-4">
+    <div class="card text-center p-3">
+      {% if current_round %}
+        <h2 class="fw-bold text-primary">Round {{ current_round.round_number }}</h2>
+        <p class="mb-0 text-muted">Currently Active</p>
+      {% else %}
+        <h2 class="fw-bold text-secondary">—</h2>
+        <p class="mb-0 text-muted">No Active Round</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Total Rounds played -->
+  <div class="col-md-4">
+    <div class="card text-center p-3">
+      <h2 class="fw-bold text-warning">{{ past_rounds.count }}</h2>
+      <p class="mb-0 text-muted">Rounds Completed</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Quick Actions for Agent -->
+<div class="card mb-4">
+  <div class="card-header bg-dark text-white">⚙️ Agent Controls</div>
+  <div class="card-body d-flex gap-3 flex-wrap">
+
+    {% if not current_round %}
+      <form method="post" action="{% url 'start_round' %}">
+        {% csrf_token %}
+        <button class="btn btn-success">▶ Start New Round</button>
+      </form>
+    {% else %}
+      <a href="{% url 'bidding' %}" class="btn btn-primary">📋 Go to Bidding</a>
+      <form method="post" action="{% url 'end_round' %}">
+        {% csrf_token %}
+        <button class="btn btn-danger" onclick="return confirm('End this round and pick a winner?')">
+          ⏹ End Round {{ current_round.round_number }}
+        </button>
+      </form>
+    {% endif %}
+
+    <a href="{% url 'join' %}" class="btn btn-outline-primary">➕ Add Participant</a>
+
+  </div>
+</div>
+
+<!-- Past rounds with winners -->
+{% if past_rounds %}
+<div class="card">
+  <div class="card-header bg-warning text-dark">🏆 Past Round Winners</div>
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Round</th>
+          <th>Winner</th>
+          <th>Wallet</th>
+          <th>Ended At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in past_rounds %}
+        <tr>
+          <td><span class="badge bg-secondary">Round {{ r.round_number }}</span></td>
+          <td>
+            {% if r.winner %}
+              <strong>🥇 {{ r.winner.name }}</strong>
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if r.winner %}
+              <code class="small">{{ r.winner.wallet_address }}</code>
+            {% endif %}
+          </td>
+          <td class="text-muted small">{{ r.ended_at|date:"d M Y, H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+  <div class="alert alert-info">No rounds completed yet. Start your first round!</div>
+{% endif %}
+
+{% endblock %}

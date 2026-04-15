@@ -1,0 +1,47 @@
+{% extends 'fund/base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="page-title mb-0">👥 All Participants</div>
+  <a href="{% url 'join' %}" class="btn btn-sm btn-primary">+ Add New</a>
+</div>
+
+{% if participants %}
+<div class="card">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Wallet Address</th>
+          <th>Status</th>
+          <th>Joined</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in participants %}
+        <tr>
+          <td class="text-muted">{{ forloop.counter }}</td>
+          <td><strong>{{ p.name }}</strong></td>
+          <td><code class="small">{{ p.wallet_address }}</code></td>
+          <td>
+            {% if p.is_active %}
+              <span class="badge bg-success">Active</span>
+            {% else %}
+              <span class="badge bg-secondary">Inactive (Won)</span>
+            {% endif %}
+          </td>
+          <td class="text-muted small">{{ p.joined_at|date:"d M Y" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+  <div class="alert alert-warning">No participants yet. <a href="{% url 'join' %}">Be the first to join!</a></div>
+{% endif %}
+
+{% endblock %}

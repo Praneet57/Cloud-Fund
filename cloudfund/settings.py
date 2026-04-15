@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-(87kee%8jx*f0*a%j%%^z84*e-2893nk0^r@ec2v^#+a@!o0^n
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+import os
+
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "cloud-fund-opbu.onrender.com,localhost,127.0.0.1").split(",")
 
 
 # Application definition

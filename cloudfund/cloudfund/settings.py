@@ -27,7 +27,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-(87kee%8jx*f0*a%j%%^z
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
 import dj_database_url
-ALLOWED_HOSTS = ['*', 'cloud-fund-opbu.onrender.com']
+import os
+
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "cloud-fund-opbu.onrender.com,localhost,127.0.0.1").split(",")
 
 
 # Application definition

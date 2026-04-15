@@ -13,5 +13,5 @@
 - [x] 5. Test: python manage.py collectstatic --noinput --dry-run
 - [x] 6. Test run: gunicorn cloudfund.wsgi
 - [x] 7. Check migrations: python manage.py showmigrations
-- [ ] 8. Render: Set env vars (SECRET_KEY new gen, DEBUG=False), Build/Start cmds, deploy
+- [x] 8. Render: Set env vars (SECRET_KEY new gen, DEBUG=False), Build/Start cmds, deploy
 

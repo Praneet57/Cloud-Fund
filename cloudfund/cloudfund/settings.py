@@ -26,7 +26,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-(87kee%8jx*f0*a%j%%^z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ['*']
+import dj_database_url
+ALLOWED_HOSTS = ['*', 'cloud-fund-opbu.onrender.com']
 
 
 # Application definition
@@ -77,10 +78,7 @@ WSGI_APPLICATION = 'cloudfund.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.parse(os.environ.get("DATABASE_URL", "sqlite:///" + str(BASE_DIR / "db.sqlite3")))
 }
 
 

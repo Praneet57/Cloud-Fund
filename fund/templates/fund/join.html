@@ -1,0 +1,89 @@
+{% extends 'fund/base.html' %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-md-6">
+
+    <div class="page-title">➕ Join the Fund</div>
+
+    <div class="card">
+      <div class="card-header bg-primary text-white">Enter Your Details</div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label for="name" class="form-label fw-semibold">Full Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              name="name"
+              placeholder="e.g. Ravi Kumar"
+              required
+            >
+          </div>
+
+          <div class="mb-3">
+            <button type="button" id="connectWalletBtn" class="btn btn-outline-primary w-100">
+              Connect MetaMask and Fetch Wallet Address
+            </button>
+          </div>
+
+          <div class="mb-3">
+            <label for="wallet_address" class="form-label fw-semibold">Wallet Address</label>
+            <input
+              type="text"
+              class="form-control"
+              id="wallet_address"
+              name="wallet_address"
+              placeholder="e.g. 0xAbCd1234..."
+              required
+            >
+            <div class="form-text">This must be unique. Used to identify you in the fund.</div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">Join Fund</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="mt-3 text-center">
+      <a href="{% url 'participants' %}">View all participants →</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const connectButton = document.getElementById('connectWalletBtn');
+    const walletInput = document.getElementById('wallet_address');
+
+    connectButton.addEventListener('click', async function() {
+      if (!window.ethereum) {
+        alert('MetaMask is not installed. Please install it and try again.');
+        return;
+      }
+
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        if (accounts && accounts.length > 0) {
+          walletInput.value = accounts[0];
+          walletInput.focus();
+          connectButton.textContent = 'Wallet Connected';
+          connectButton.classList.remove('btn-outline-primary');
+          connectButton.classList.add('btn-success');
+        } else {
+          alert('No wallet address was returned. Please connect your MetaMask account.');
+        }
+      } catch (error) {
+        console.error('MetaMask connection error:', error);
+        alert('Failed to connect MetaMask. ' + (error.message || 'Please try again.'));
+      }
+    });
+  });
+</script>
+
+{% endblock %}

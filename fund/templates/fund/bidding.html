@@ -1,0 +1,138 @@
+{% extends 'fund/base.html' %}
+
+{% block content %}
+
+<div class="page-title">🎯 Bidding Room</div>
+
+{% if not current_round %}
+  <!-- No active round -->
+  <div class="alert alert-info text-center py-4">
+    <h5>No active round right now.</h5>
+    <p class="mb-3">The agent needs to start a new round from the Dashboard.</p>
+    <a href="{% url 'home' %}" class="btn btn-primary">Go to Dashboard</a>
+  </div>
+
+{% else %}
+  <!-- Current Round Info -->
+  <div class="card mb-4 border-primary">
+    <div class="card-header bg-primary text-white d-flex justify-content-between">
+      <span>🔵 Round {{ current_round.round_number }} — In Progress</span>
+      <span class="small opacity-75">Started: {{ current_round.started_at|date:"d M, H:i" }}</span>
+    </div>
+    <div class="card-body">
+      <p class="mb-1">
+        <strong>Active Participants:</strong> {{ active_participants.count }}
+        &nbsp;|&nbsp;
+        <strong>Bids Placed:</strong> {{ bids.count }}
+      </p>
+
+      <!-- End Round button -->
+      <form method="post" action="{% url 'end_round' %}" class="d-inline">
+        {% csrf_token %}
+        <button class="btn btn-danger btn-sm"
+                onclick="return confirm('Are you sure you want to end Round {{ current_round.round_number }}? The highest bidder wins.')">
+          ⏹ End Round & Pick Winner
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Place a Bid -->
+    <div class="col-md-5">
+      <div class="card h-100">
+        <div class="card-header bg-success text-white">💸 Place a Bid</div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Select Participant</label>
+              <select name="participant_id" class="form-select" required>
+                <option value="">-- Choose participant --</option>
+                {% for p in active_participants %}
+                  <option value="{{ p.id }}">
+                    {{ p.name }}
+                    {% if bid_map|default_if_none:'' %}
+                      {% if p.id in bid_map %}✔ Already bid{% endif %}
+                    {% endif %}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Bid Amount (₹)</label>
+              <input
+                type="number"
+                name="bid_amount"
+                class="form-control"
+                placeholder="e.g. 5000"
+                step="0.01"
+                min="1"
+                required
+              >
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">Submit Bid</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Current Bids Table -->
+    <div class="col-md-7">
+      <div class="card h-100">
+        <div class="card-header bg-dark text-white">📊 Current Bids</div>
+        <div class="card-body p-0">
+          {% if bids %}
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Participant</th>
+                  <th>Bid Amount</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for bid in bids %}
+                <tr {% if forloop.first %}class="table-warning fw-bold"{% endif %}>
+                  <td>{{ bid.participant.name }}</td>
+                  <td>₹ {{ bid.bid_amount }}</td>
+                  <td class="text-muted small">{{ bid.placed_at|date:"H:i:s" }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <div class="p-2 text-muted small text-end">* Rows sorted by bid amount (highest first)</div>
+          {% else %}
+            <div class="p-4 text-center text-muted">
+              No bids yet. Be the first one!
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Participants who haven't bid yet -->
+  <div class="card mt-4">
+    <div class="card-header">⏳ Participants Yet to Bid</div>
+    <div class="card-body">
+      {% with bid_participant_ids=bids|length %}
+        <div class="d-flex flex-wrap gap-2">
+          {% for p in active_participants %}
+            {% if p.id not in bid_map %}
+              <span class="badge bg-warning text-dark fs-6 px-3 py-2">{{ p.name }}</span>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endwith %}
+    </div>
+  </div>
+
+{% endif %}
+
+{% endblock %}
